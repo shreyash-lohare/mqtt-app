@@ -11,46 +11,66 @@
         android:id="@+id/inputBroker"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="tcp://10.138.2.56:1883"
+        android:hint="@string/hint_broker"
         android:enabled="false"
         android:inputType="textUri"
+        android:autofillHints="username"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintWidth_percent="0.9"
+        app:layout_constraintWidth_percent="0.95"
         android:layout_marginTop="16dp" />
 
     <EditText
         android:id="@+id/inputClientId"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Client ID (optional)"
+        android:hint="@string/hint_client_id"
         android:enabled="false"
+        android:inputType="text"
+        android:autofillHints="username"
         app:layout_constraintTop_toBottomOf="@id/inputBroker"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.9"
+        app:layout_constraintWidth_percent="0.95"
         android:layout_marginTop="8dp" />
 
     <EditText
         android:id="@+id/inputTopicBase"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="home/testroom/light/main"
+        android:hint="@string/hint_topic_led"
         android:enabled="false"
+        android:inputType="text"
+        android:autofillHints="username"
         app:layout_constraintTop_toBottomOf="@id/inputClientId"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.9"
+        app:layout_constraintWidth_percent="0.95"
+        android:layout_marginTop="8dp" />
+
+    <!-- New Fan topic base input, similar to LED -->
+    <EditText
+        android:id="@+id/inputTopicFanBase"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_topic_fan"
+        android:enabled="false"
+        android:inputType="text"
+        android:autofillHints="username"
+        app:layout_constraintTop_toBottomOf="@id/inputTopicBase"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.95"
         android:layout_marginTop="8dp" />
 
     <Button
         android:id="@+id/btnConnect"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Connect"
-        app:layout_constraintTop_toBottomOf="@id/inputTopicBase"
+        android:text="@string/btn_connect"
+        app:layout_constraintTop_toBottomOf="@id/inputTopicFanBase"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnDisconnect"
         app:layout_constraintWidth_percent="0.44"
@@ -61,45 +81,58 @@
         android:id="@+id/btnDisconnect"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Disconnect"
-        app:layout_constraintTop_toBottomOf="@id/inputTopicBase"
+        android:text="@string/btn_disconnect"
+        app:layout_constraintTop_toBottomOf="@id/inputTopicFanBase"
         app:layout_constraintStart_toEndOf="@id/btnConnect"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintWidth_percent="0.44"
         android:layout_marginTop="12dp"
         android:layout_marginStart="8dp" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/switchLed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="LED"
+        android:text="@string/label_led"
         app:layout_constraintTop_toBottomOf="@id/btnConnect"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/switchFan"
+        android:layout_marginTop="16dp"
+        app:layout_goneMarginEnd="16dp" />
+
+    <!-- New Fan switch -->
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switchFan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_fan"
+        app:layout_constraintTop_toBottomOf="@id/btnConnect"
+        app:layout_constraintStart_toEndOf="@id/switchLed"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="24dp" />
 
     <TextView
         android:id="@+id/textStatus"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Status: Unknown"
+        android:text="@string/label_status_unknown"
         app:layout_constraintTop_toBottomOf="@id/switchLed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.9"
+        app:layout_constraintWidth_percent="0.95"
         android:layout_marginTop="8dp" />
 
     <TextView
         android:id="@+id/textLogTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Logs"
+        android:text="@string/label_logs"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/textStatus"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.9"
+        app:layout_constraintWidth_percent="0.95"
         android:layout_marginTop="8dp" />
 
     <ScrollView
@@ -110,14 +143,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.9"
-        android:layout_marginBottom="16dp">
+        app:layout_constraintWidth_percent="0.98"
+        android:layout_marginBottom="12dp">
 
         <TextView
             android:id="@+id/textLogs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:textIsSelectable="true"
             android:padding="8dp"
             android:background="#111111"

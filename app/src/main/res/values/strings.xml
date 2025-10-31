@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">mqtt_app</string>
+    <string name="hint_broker">tcp://10.138.2.56:1883</string>
+    <string name="hint_client_id">Client ID (optional)</string>
+    <string name="hint_topic_led">home/testroom/light/main</string>
+    <string name="hint_topic_fan">home/testroom/fan/main</string>
+    <string name="btn_connect">Connect</string>
+    <string name="btn_disconnect">Disconnect</string>
+    <string name="label_led">LED</string>
+    <string name="label_fan">Fan</string>
+    <string name="label_status_unknown">Status: Unknown</string>
+    <string name="label_logs">Logs</string>
 </resources>

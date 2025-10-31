@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ScrollView
-import android.widget.Switch
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
@@ -26,14 +26,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var inputBroker: EditText
     private lateinit var inputClientId: EditText
     private lateinit var inputTopicBase: EditText
+    private lateinit var inputTopicFanBase: EditText
     private lateinit var btnConnect: Button
     private lateinit var btnDisconnect: Button
-    private lateinit var switchLed: Switch
+    private lateinit var switchLed: SwitchCompat
+    private lateinit var switchFan: SwitchCompat
     private lateinit var textStatus: TextView
     private lateinit var textLogs: TextView
     private lateinit var scrollLogs: ScrollView
 
     private var updatingToggleFromStatus: Boolean = false
+    private var updatingFanFromStatus: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,18 +57,21 @@ class MainActivity : AppCompatActivity() {
         inputBroker = findViewById(R.id.inputBroker)
         inputClientId = findViewById(R.id.inputClientId)
         inputTopicBase = findViewById(R.id.inputTopicBase)
+        inputTopicFanBase = findViewById(R.id.inputTopicFanBase)
         btnConnect = findViewById(R.id.btnConnect)
         btnDisconnect = findViewById(R.id.btnDisconnect)
         switchLed = findViewById(R.id.switchLed)
+        switchFan = findViewById(R.id.switchFan)
         textStatus = findViewById(R.id.textStatus)
         textLogs = findViewById(R.id.textLogs)
         scrollLogs = findViewById(R.id.scrollLogs)
     }
 
     private fun setupDefaultValues() {
-        inputBroker.setText("tcp://10.138.2.56:1883")
+        inputBroker.setText(getString(R.string.hint_broker))
         inputClientId.setText("")
-        inputTopicBase.setText("home/testroom/light/main")
+        inputTopicBase.setText(getString(R.string.hint_topic_led))
+        inputTopicFanBase.setText(getString(R.string.hint_topic_fan))
         setStatusText("Disconnected")
     }
 
@@ -79,6 +85,10 @@ class MainActivity : AppCompatActivity() {
         switchLed.setOnCheckedChangeListener { _, isChecked ->
             if (updatingToggleFromStatus) return@setOnCheckedChangeListener
             publishSet(isChecked)
+        }
+        switchFan.setOnCheckedChangeListener { _, isChecked ->
+            if (updatingFanFromStatus) return@setOnCheckedChangeListener
+            publishFanSet(isChecked)
         }
     }
 
@@ -148,6 +158,17 @@ class MainActivity : AppCompatActivity() {
         publish(topic, payload, qos = 1, retained = false)
     }
 
+    private fun publishFanSet(isOn: Boolean) {
+        val base = inputTopicFanBase.text.toString().trim().trim('/')
+        if (base.isEmpty()) {
+            appendLog("Fan topic base is empty")
+            return
+        }
+        val topic = "$base/set"
+        val payload = if (isOn) "ON" else "OFF"
+        publish(topic, payload, qos = 1, retained = false)
+    }
+
     private fun publish(topic: String, payload: String, qos: Int = 0, retained: Boolean = false) {
         val client = mqttClient
         if (client == null || !client.isConnected) {
@@ -168,15 +189,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleIncomingMessage(topic: String, payload: String) {
         val base = inputTopicBase.text.toString().trim().trim('/')
-        if (base.isEmpty()) return
-        val statusTopic = "$base/status"
-        if (topic.equals(statusTopic, ignoreCase = false)) {
-            setStatusText("Status: $payload")
-            val normalized = payload.trim().uppercase()
-            val shouldBeChecked = normalized == "ON" || normalized == "1" || normalized == "TRUE"
-            updatingToggleFromStatus = true
-            switchLed.isChecked = shouldBeChecked
-            updatingToggleFromStatus = false
+        if (base.isNotEmpty()) {
+            val statusTopic = "$base/status"
+            if (topic.equals(statusTopic, ignoreCase = false)) {
+                setStatusText("Status: $payload")
+                val normalized = payload.trim().uppercase()
+                val shouldBeChecked = normalized == "ON" || normalized == "1" || normalized == "TRUE"
+                updatingToggleFromStatus = true
+                switchLed.isChecked = shouldBeChecked
+                updatingToggleFromStatus = false
+            }
+        }
+
+        val fanBase = inputTopicFanBase.text.toString().trim().trim('/')
+        if (fanBase.isNotEmpty()) {
+            val fanStatusTopic = "$fanBase/status"
+            if (topic.equals(fanStatusTopic, ignoreCase = false)) {
+                val normalized = payload.trim().uppercase()
+                val shouldBeChecked = normalized == "ON" || normalized == "1" || normalized == "TRUE"
+                updatingFanFromStatus = true
+                switchFan.isChecked = shouldBeChecked
+                updatingFanFromStatus = false
+            }
         }
     }
 
